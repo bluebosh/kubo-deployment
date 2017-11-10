@@ -1,0 +1,55 @@
+---
+azs:
+- name: z1
+  cloud_properties:
+    datacenter: ((sl_datacenter))
+
+networks:
+- name: &network_name ((deployments_network))
+  type: dynamic
+  subnets:
+  - range: ((internal_cidr))
+    gateway: ((internal_gw))
+    dns:
+    - ((dns_recursor_ip, 8.8.8.8, 10.0.80.11, 10.0.80.12))
+    az: z1
+    cloud_properties:
+      vlan_ids: [((sl_vlan_public_id)), ((sl_vlan_private_id))]
+
+vm_types:
+- name: common
+  cloud_properties:
+    memory: 8192
+    cpu: 4
+    ephemeral_disk_size: 100
+    hostname_prefix: ((deploy_name))-core
+    domain: ((sl_vm_domain))
+
+- name: master
+  cloud_properties:
+    memory: 8192
+    cpu: 4
+    ephemeral_disk_size: 100
+    hostname_prefix: ((deploy_name))-core
+    domain: ((sl_vm_domain))
+
+- name: worker
+  cloud_properties:
+    memory: 8192
+    cpu: 2
+    ephemeral_disk_size: 100
+    hostname_prefix: ((deploy_name))-core
+    domain: ((sl_vm_domain))
+
+disk_types:
+- name: 10240
+  disk_size: 10240
+- name: 5120
+  disk_size: 5120
+
+compilation:
+  workers: 4
+  network: *network_name
+  az: z1
+  reuse_compilation_vms: true
+  vm_type: worker
